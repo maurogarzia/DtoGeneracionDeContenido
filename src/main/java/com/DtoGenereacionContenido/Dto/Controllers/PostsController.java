@@ -2,6 +2,8 @@ package com.DtoGenereacionContenido.Dto.Controllers;
 
 import com.DtoGenereacionContenido.Dto.Entities.Posts;
 import com.DtoGenereacionContenido.Dto.Services.PostsService;
+import com.DtoGenereacionContenido.Dto.dtos.PostCreateDTO;
+import com.DtoGenereacionContenido.Dto.dtos.PostDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,60 +18,49 @@ public class PostsController {
         this.postsService = postsService;
     }
 
-
     @GetMapping
-    public ResponseEntity<List<Posts>> getAll() {
+    public ResponseEntity<List<PostDTO>> getAll() {
         try {
-            List<Posts> posts = postsService.findAll();
-            return ResponseEntity.ok(posts);
+            return ResponseEntity.ok(postsService.findAll());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
-
 
     @GetMapping("/{id}")
-    public ResponseEntity<Posts> getById(@PathVariable Long id) {
+    public ResponseEntity<PostDTO> getById(@PathVariable Long id) {
         try {
-            Posts post = postsService.findById(id);
-            return ResponseEntity.ok(post);
+            return ResponseEntity.ok(postsService.findById(id));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
-
 
     @PostMapping
-    public ResponseEntity<Posts> create(@RequestBody Posts newPost) {
+    public ResponseEntity<PostDTO> create(@RequestBody PostCreateDTO dto) {
         try {
-            Posts createdPost = postsService.save(newPost);
-            return ResponseEntity.status(201).body(createdPost);
+            PostDTO created = postsService.save(dto);
+            return ResponseEntity.status(201).body(created);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
-
 
     @PutMapping("/{id}")
-    public ResponseEntity<Posts> update(@PathVariable Long id, @RequestBody Posts newPost) {
+    public ResponseEntity<PostDTO> update(@PathVariable Long id, @RequestBody PostCreateDTO dto) {
         try {
-            Posts updatedPost = postsService.update(id, newPost);
-            return ResponseEntity.ok(updatedPost);
+            PostDTO updated = postsService.update(id, dto);
+            return ResponseEntity.ok(updated);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         try {
             boolean deleted = postsService.delete(id);
-            if (deleted) {
-                return ResponseEntity.noContent().build();
-            } else {
-                return ResponseEntity.notFound().build();
-            }
+            return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

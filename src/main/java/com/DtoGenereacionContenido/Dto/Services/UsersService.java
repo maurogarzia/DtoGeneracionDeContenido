@@ -1,13 +1,13 @@
 package com.DtoGenereacionContenido.Dto.Services;
 
+import com.DtoGenereacionContenido.Dto.Entities.Posts;
 import com.DtoGenereacionContenido.Dto.Entities.Users;
 import com.DtoGenereacionContenido.Dto.Repositories.UsersRepository;
-import jakarta.transaction.Transactional;
-import org.apache.catalina.User;
+import com.DtoGenereacionContenido.Dto.dtos.UserCreateDTO;
+import com.DtoGenereacionContenido.Dto.dtos.UserDTO;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UsersService {
@@ -18,67 +18,66 @@ public class UsersService {
         this.usersRepository = usersRepository;
     }
 
-    @Transactional
-    public List<Users> findAll() throws Exception {
-        try{
-            return usersRepository.findAll();
-        }catch(Exception e){
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    @Transactional
-    public Users findById(Long id) throws Exception{
-        try{
-            Optional<Users> searchUser = usersRepository.findById(id);
-            if (searchUser.isPresent()){
-                return searchUser.get();
-            } else {
-                throw new Exception("Entidad no encontrada");
-            }
-        }catch(Exception e){
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    @Transactional
-    public Users save(Users newUser) throws Exception {
-        try{
-            return usersRepository.save(newUser);
-        }catch(Exception e){
-            throw new Exception(e.getMessage());
-        }
-    }
-
-    @Transactional
-    public Users update(Long id, Users newUser) throws Exception {
+    public List<UserDTO> findAll() throws Exception {
         try {
-            Optional<Users> existingUser = usersRepository.findById(id);
-            if (existingUser.isPresent()) {
-                Users userToUpdate = existingUser.get();
-                userToUpdate.setName(newUser.getName());
-                userToUpdate.setEmail(newUser.getEmail());
-
-                return usersRepository.save(userToUpdate);
-            } else {
-                throw new Exception("Usuario no encontrado");
-            }
+            return usersRepository.findAll()
+                    .stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
-    @Transactional
+    public UserDTO findById(Long id) throws Exception {
+        Users user = usersRepository.findById(id)
+                .orElseThrow(() -> new Exception("Usuario no encontrado"));
+        return convertToDTO(user);
+    }
+
+    public UserDTO save(UserCreateDTO dto) throws Exception {
+        Users user = new Users();
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+
+        Users saved = usersRepository.save(user);
+        return convertToDTO(saved);
+    }
+
+    public UserDTO update(Long id, UserCreateDTO dto) throws Exception {
+        Users user = usersRepository.findById(id)
+                .orElseThrow(() -> new Exception("Usuario no encontrado"));
+
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+
+        Users updated = usersRepository.save(user);
+        return convertToDTO(updated);
+    }
+
     public boolean delete(Long id) throws Exception {
-        try {
-            if (usersRepository.existsById(id)){
-                usersRepository.deleteById(id);
-                return true;
-            }else {
-                throw new Exception("Entidad no encontrada");
-            }
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+        if (usersRepository.existsById(id)) {
+            usersRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
         }
+    }
+
+    private UserDTO convertToDTO(Users user) {
+        List<String> postTitles = null;
+        if (user.getPosts() != null) {
+            postTitles = user.getPosts()
+                    .stream()
+                    .map(Posts::getTitle)
+                    .collect(Collectors.toList());
+        }
+
+        return new UserDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                postTitles
+        );
     }
 }

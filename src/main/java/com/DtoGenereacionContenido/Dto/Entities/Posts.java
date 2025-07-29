@@ -20,7 +20,7 @@ public class Posts {
     private String content;
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private Users user;
 
     // Getters
 
@@ -36,7 +36,7 @@ public class Posts {
         return content;
     }
 
-    public User getUser() {
+    public Users getUser() {
         return user;
     }
 
@@ -54,7 +54,7 @@ public class Posts {
         this.content = content;
     }
 
-    public void setUser(User user) {
+    public void setUser(Users user) {
         this.user = user;
     }
 }

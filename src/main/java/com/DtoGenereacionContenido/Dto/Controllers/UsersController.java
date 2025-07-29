@@ -2,6 +2,8 @@ package com.DtoGenereacionContenido.Dto.Controllers;
 
 import com.DtoGenereacionContenido.Dto.Entities.Users;
 import com.DtoGenereacionContenido.Dto.Services.UsersService;
+import com.DtoGenereacionContenido.Dto.dtos.UserCreateDTO;
+import com.DtoGenereacionContenido.Dto.dtos.UserDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,55 +19,49 @@ public class UsersController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Users>> getAll(){
-        try{
-            List<Users> users =usersService.findAll();
-            return ResponseEntity.ok(users);
-        }catch(Exception e){
+    public ResponseEntity<List<UserDTO>> getAll() {
+        try {
+            return ResponseEntity.ok(usersService.findAll());
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Users> getById(@PathVariable Long id){
-        try{
-            Users user = usersService.findById(id);
-            return ResponseEntity.ok(user);
-        }catch(Exception e){
+    public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(usersService.findById(id));
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @PostMapping
-    public ResponseEntity<Users> create(@RequestBody Users newUser){
-        try{
-            Users createdUser = usersService.save(newUser);
-            return ResponseEntity.status(201).body(createdUser);
-        }catch(Exception e){
+    public ResponseEntity<UserDTO> create(@RequestBody UserCreateDTO dto) {
+        try {
+            UserDTO created = usersService.save(dto);
+            return ResponseEntity.status(201).body(created);
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Users> update(@RequestBody Users newUser, @PathVariable Long id){
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody UserCreateDTO dto) {
         try {
-            Users updatedUser = usersService.update(id, newUser);
-            return ResponseEntity.ok(updatedUser);
-        } catch (Exception e){
+            UserDTO updated = usersService.update(id, dto);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         try {
             boolean deleted = usersService.delete(id);
-            if (deleted){
-                return ResponseEntity.noContent().build();
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch(Exception e){
+            return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
