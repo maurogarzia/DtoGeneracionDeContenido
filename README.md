@@ -17,7 +17,7 @@ El proyecto fue generado con Spring Initializr y utiliza las siguientes dependen
 ---
 
 ## 📁 Estructura del Proyecto
-
+```bash
 src/
 └── main/
 ├── java/
@@ -29,7 +29,7 @@ src/
 │ └── Services/
 └── resources/
 ├── application.properties
-
+```
 ---
 
 ## 🧑‍💻 Explicación del Proyecto
